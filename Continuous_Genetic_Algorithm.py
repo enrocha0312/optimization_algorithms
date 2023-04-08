@@ -4,8 +4,8 @@ import sys
 import numpy as np
 
 
-def fitnessFuction(population):
-    return list(map(lambda x: x*x, population))
+def fitnessFuction(x):
+    return x*x
     # you can modify to whatever function you want, here it's just an example
     # it calculates the square for any number
 
@@ -13,7 +13,7 @@ class Chromosome:
     def __init__(self, genes):
         self.genes = genes
     def calculateFitnessValues(genes, callback):
-        return list(map(callback,genes))
+        return [callback(gene) for gene in genes]
 
 def LimitsCalculate(numberOfGenes):
     upperLimit = np.ones(numberOfGenes, dtype=int) * 100
