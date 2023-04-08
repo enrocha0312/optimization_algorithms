@@ -12,8 +12,10 @@ def fitnessFuction(x):
 class Chromosome:
     def __init__(self, genes):
         self.genes = genes
-    def calculateFitnessValues(genes, callback):
-        return [callback(gene) for gene in genes]
+    def createFitnessValuesGenesList (self, callback):
+        return [callback(gene) for gene in self.genes]
+    def calculateFitnessValueOfTheChromosome(self, callback):
+        return sum(map(fitnessFuction, self.genes))
 
 def LimitsCalculate(numberOfGenes):
     upperLimit = np.ones(numberOfGenes, dtype=int) * 100
