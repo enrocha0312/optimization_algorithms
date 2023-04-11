@@ -115,6 +115,7 @@ def mutation(child, mutationProbability, ub=100, lb=-100):
         R = rd.random()
         if R < mutationProbability:
             child.genes[i] = (ub - lb) * rd.random() + lb
+    return child
 
 
 upperLimit, lowerLimit = LimitsCalculate(10)
@@ -135,4 +136,12 @@ print(parent2.genes)
 print("CHILD 1")
 print(child1.genes)
 print("CHILD 2")
+print(child2.genes)
+
+child1 = mutation(child1, 0.15)
+child2 = mutation(child2, 0.15)
+
+print("CHILD 1 AFTER MUTATION")
+print(child1.genes)
+print("CHILD 2 AFTER MUTATION")
 print(child2.genes)
