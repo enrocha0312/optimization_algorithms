@@ -110,12 +110,11 @@ def crossover(parent1, parent2, crossoverProbability, crossoverType):
         child2 = parent2
     return [child1, child2]
 
-
-
-
-
-
-
+def mutation(child, mutationProbability, ub=100, lb=-100):
+    for i in range(len(child.genes)):
+        R = rd.random()
+        if R < mutationProbability:
+            child.genes[i] = (ub - lb) * rd.random() + lb
 
 
 upperLimit, lowerLimit = LimitsCalculate(10)
