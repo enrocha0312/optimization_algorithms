@@ -150,10 +150,11 @@ def continuousGeneticAlgorithm(numberOfChromosomes, numberOfGenes, numberOfGenat
         newPopulation = elitism(population, newPopulation, elitismRate, fitnessFunction)
         bestChromosomesValues.append(
             max(map(lambda c: c.calculateFitnessValueOfTheChromosome(fitnessFunction), newPopulation)))
-    plt.plot(generations, bestChromosomesValues)
+    plt.plot(generations, sorted(bestChromosomesValues))
     plt.show()
 
 
 
-continuousGeneticAlgorithm(20, 10, 200, 0.85, "single", 0.15, 0.2, fitnessFunction, 100, -100)
+continuousGeneticAlgorithm(10, 5, 10, 0.95, "single", 0.15, 0.2, fitnessFunction, 100, -100)
+
 
