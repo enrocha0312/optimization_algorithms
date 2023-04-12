@@ -2,9 +2,9 @@ import random as rd
 import math
 import sys
 import numpy as np
+import matplotlib.pyplot as plt
 
-
-def fitnessFuction(x):
+def fitnessFunction(x):
     return x*x
     # you can modify to whatever function you want, here it's just an example
     # it calculates the square for any number
@@ -15,7 +15,7 @@ class Chromosome:
     def calculateFitnessValueOfTheChromosome(self, callback):
         return sum(map(callback, self.genes))
 
-def LimitsCalculate(numberOfGenes, up=100, lp=-100):
+def limitsCalculate(numberOfGenes, up=100, lp=-100):
     upperLimit = np.ones(numberOfGenes, dtype=int) * up
     lowerLimit = np.ones(numberOfGenes, dtype=int) * lp
     return [upperLimit, lowerLimit]
@@ -24,7 +24,7 @@ def LimitsCalculate(numberOfGenes, up=100, lp=-100):
 
 def visualizePopulation(population):
     for i in range(len(population)):
-        print("Chromosome " , i)
+        print("Chromosome " , i+1)
         print(population[i].genes)
 
 def populationInitialize(numberOfChromosomes, numberOfGenes, upperLimits, lowerLimits):
@@ -36,17 +36,13 @@ def populationInitialize(numberOfChromosomes, numberOfGenes, upperLimits, lowerL
             population[i].genes.append((upperLimits[j] - lowerLimits[j]) * rd.random() + lowerLimits[j])
     return population
 
-def rouletteWheelSelection(population):
+def rouletteWheelSelection(population, callback):
     populationOrderedByFitness = sorted(population,
-                                        key=lambda p: p.calculateFitnessValueOfTheChromosome(fitnessFuction),
+                                        key=lambda p: p.calculateFitnessValueOfTheChromosome(callback),
                                         reverse=True)
-    print("Chromosomes Adresses ordered by their fitness:")
-    print(populationOrderedByFitness)
-    fitnessList = list(map(lambda p: p.calculateFitnessValueOfTheChromosome(fitnessFuction), population))
+    fitnessList = list(map(lambda p: p.calculateFitnessValueOfTheChromosome(callback), population))
     cumSum = list(np.cumsum([c/sum(fitnessList) for c in fitnessList]))
     cumSum.sort(reverse=True)
-    print("\n Cumulative sum in descending order:" )
-    print(cumSum)
     R  =  rd.random()
     parent1Index = len(cumSum) - 1 #guarantee that it has an index if we can't be in the if condition
     for i in range(len(cumSum)):
@@ -117,31 +113,47 @@ def mutation(child, mutationProbability, ub=100, lb=-100):
             child.genes[i] = (ub - lb) * rd.random() + lb
     return child
 
+def elitism(population, newPopulation, elitismRate, callback):
+    elitismNumber = round (len(newPopulation) * elitismRate)
+    #newPopulation is the population after mutation process
+    oldestPopulationOrderedByFitness = sorted(population,
+                                        key=lambda p: p.calculateFitnessValueOfTheChromosome(callback),
+                                        reverse=True)
+    newestPopulationOrderedByFitness = sorted(newPopulation,
+                                             key=lambda p: p.calculateFitnessValueOfTheChromosome(callback),
+                                             reverse=True)
+    for i in range(elitismNumber):
+        newPopulation[i] = oldestPopulationOrderedByFitness[i]
+    for j in range(elitismNumber, len(newPopulation)):
+        newPopulation[j] = newestPopulationOrderedByFitness[j-elitismNumber]
+    return newPopulation
 
-upperLimit, lowerLimit = LimitsCalculate(10)
+def continuousGeneticAlgorithm(numberOfChromosomes, numberOfGenes, numberOfGenations, crossoverProbability, crossoverType,
+                               mutationProbability, elitismRate, fitnessFunction, ub, lb):
+    [upperLimits, lowerLimits] = limitsCalculate(numberOfGenes, ub, lb)
+    population = populationInitialize(numberOfChromosomes, numberOfGenes, upperLimits, lowerLimits)
+    visualizePopulation(population)
+    print(" BEST CHROMOSOME OF THE FIRST GENERATION ")
+    print(max(map(lambda c: c.calculateFitnessValueOfTheChromosome(fitnessFunction),population)))
+    generations = [i+1 for i in range(numberOfGenations)]
+    bestChromosomesValues = []
+    bestChromosomesValues.append(max(map(lambda c: c.calculateFitnessValueOfTheChromosome(fitnessFunction),population)))
+    for j in range(1,numberOfGenations):
+        newPopulation = []
+        for k in range(0,numberOfChromosomes//2):
+            [parent1, parent2] = rouletteWheelSelection(population, fitnessFunction)
+            [child1, child2] = crossover(parent1, parent2, crossoverProbability, crossoverType)
+            child1 = mutation(child1, mutationProbability, ub, lb)
+            child2 = mutation(child2, mutationProbability, ub, lb)
+            newPopulation.append(child1)
+            newPopulation.append(child2)
+        newPopulation = elitism(population, newPopulation, elitismRate, fitnessFunction)
+        bestChromosomesValues.append(
+            max(map(lambda c: c.calculateFitnessValueOfTheChromosome(fitnessFunction), newPopulation)))
+    plt.plot(generations, bestChromosomesValues)
+    plt.show()
 
-population = populationInitialize(5, 10, upperLimit, lowerLimit)
-
-visualizePopulation(population)
-
-[parent1, parent2] = rouletteWheelSelection(population)
-print("PARENT 1")
-print(parent1.genes)
-print("PARENT 2")
-print(parent2.genes)
 
 
-[child1, child2] = crossover(parent1, parent2, 0.85, "double")
+continuousGeneticAlgorithm(20, 10, 200, 0.85, "single", 0.15, 0.2, fitnessFunction, 100, -100)
 
-print("CHILD 1")
-print(child1.genes)
-print("CHILD 2")
-print(child2.genes)
-
-child1 = mutation(child1, 0.15)
-child2 = mutation(child2, 0.15)
-
-print("CHILD 1 AFTER MUTATION")
-print(child1.genes)
-print("CHILD 2 AFTER MUTATION")
-print(child2.genes)
