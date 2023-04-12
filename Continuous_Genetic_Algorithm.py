@@ -138,6 +138,7 @@ def continuousGeneticAlgorithm(numberOfChromosomes, numberOfGenes, numberOfGenat
     generations = [i+1 for i in range(numberOfGenations)]
     bestChromosomesValues = []
     bestChromosomesValues.append(max(map(lambda c: c.calculateFitnessValueOfTheChromosome(fitnessFunction),population)))
+    x_axis = [bestChromosomesValues[0]]
     for j in range(1,numberOfGenations):
         newPopulation = []
         for k in range(0,numberOfChromosomes//2):
@@ -150,11 +151,12 @@ def continuousGeneticAlgorithm(numberOfChromosomes, numberOfGenes, numberOfGenat
         newPopulation = elitism(population, newPopulation, elitismRate, fitnessFunction)
         bestChromosomesValues.append(
             max(map(lambda c: c.calculateFitnessValueOfTheChromosome(fitnessFunction), newPopulation)))
-    plt.plot(generations, sorted(bestChromosomesValues))
+        x_axis.append(max(bestChromosomesValues))
+    plt.plot(generations, x_axis)
     plt.show()
 
 
 
-continuousGeneticAlgorithm(10, 5, 10, 0.95, "single", 0.15, 0.2, fitnessFunction, 100, -100)
+continuousGeneticAlgorithm(10, 10, 50, 0.85, "single", 0.10, 0.2, fitnessFunction, 100, -100)
 
 
