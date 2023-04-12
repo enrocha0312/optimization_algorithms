@@ -136,9 +136,11 @@ def continuousGeneticAlgorithm(numberOfChromosomes, numberOfGenes, numberOfGenat
     print(" BEST CHROMOSOME OF THE FIRST GENERATION ")
     print(max(map(lambda c: c.calculateFitnessValueOfTheChromosome(fitnessFunction),population)))
     generations = [i+1 for i in range(numberOfGenations)]
-    bestChromosomesValues = []
-    bestChromosomesValues.append(max(map(lambda c: c.calculateFitnessValueOfTheChromosome(fitnessFunction),population)))
-    x_axis = [bestChromosomesValues[0]]
+    bestChromosomesFitnessValues = []
+    bestChromosomesFitnessValues.append(max(map(lambda c: c.calculateFitnessValueOfTheChromosome(fitnessFunction),population)))
+    bestChromosomesList = list(filter(lambda c: c.calculateFitnessValueOfTheChromosome(fitnessFunction) ==
+                                 max(map(lambda c: c.calculateFitnessValueOfTheChromosome(fitnessFunction),population)), population))
+    y_axis = [bestChromosomesFitnessValues[0]]
     for j in range(1,numberOfGenations):
         newPopulation = []
         for k in range(0,numberOfChromosomes//2):
@@ -149,11 +151,33 @@ def continuousGeneticAlgorithm(numberOfChromosomes, numberOfGenes, numberOfGenat
             newPopulation.append(child1)
             newPopulation.append(child2)
         newPopulation = elitism(population, newPopulation, elitismRate, fitnessFunction)
-        bestChromosomesValues.append(
+        bestChromosomesFitnessValues.append(
             max(map(lambda c: c.calculateFitnessValueOfTheChromosome(fitnessFunction), newPopulation)))
-        x_axis.append(max(bestChromosomesValues))
-    plt.plot(generations, x_axis)
+        bestChromosomesList.append(sorted(newPopulation, key=lambda c: c.calculateFitnessValueOfTheChromosome(fitnessFunction),reverse=True)[0])
+        y_axis.append(max(bestChromosomesFitnessValues))
+    print("\n----------------------")
+    print("Best Fitness Value is")
+    bestChromosome = sorted(bestChromosomesList, key=lambda c: c.calculateFitnessValueOfTheChromosome(fitnessFunction))[len(bestChromosomesList) - 1]
+    print(bestChromosome.calculateFitnessValueOfTheChromosome(fitnessFunction))
+    print("\n----------------------")
+    print("The best chromosome has the following genes")
+    print(bestChromosome.genes)
+    font1 = {'family':'serif','color':'blue','size':15}
+    font2 = {'family':'serif','color':'darkred','size': 10}
+    plt.subplot(2,2,1)
+    plt.plot(generations, y_axis, c = '#4CAF50', linewidth = '3.5')
+    plt.title("Best chromosome fitness value per generation", fontdict=font1)
+    plt.xlabel("Generation", fontdict=font2)
+    plt.ylabel("Best Fitness Value",fontdict=font2)
+    plt.subplot(2,2,2)
+    plt.scatter(bestChromosome.genes, [i for i in range(1,numberOfGenes+1)])
+    plt.grid()
+    plt.title("Genes of the best chromosome", fontdict=font1)
+    plt.xlabel("Value of the gene", fontdict=font2)
+    plt.ylabel("Position of the gene in Chromosome",fontdict=font2)
     plt.show()
+
+
 
 
 
